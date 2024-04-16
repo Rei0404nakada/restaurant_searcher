@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:http/http.dart' as http;
 
 void main() {
   runApp(const MyApp());
@@ -40,25 +43,29 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'Your current position:',
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: <Widget>[
+          const Text(
+            'position:',
+          ),
+          // 位置情報を表示する部分
+          if (_position != null)
+            Text(
+              'Latitude: ${_position!.latitude}, Longitude: ${_position!.longitude}',
+              style: Theme.of(context).textTheme.titleLarge,
             ),
-            // 位置情報を表示する部分
-            if (_position != null)
-              Text(
-                'Latitude: ${_position!.latitude}, Longitude: ${_position!.longitude}',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-            // 位置情報が取得されるまでの表示
-            if (_position == null)
-              // CircularProgressIndicator(), // ローディングインジケーターを表示
-              Text(''),
-          ],
-        ),
+          // 位置情報が取得されるまでの表示
+          if (_position == null)
+            // CircularProgressIndicator(), // ローディングインジケーターを表示
+            Text(''),
+          ElevatedButton(
+            onPressed: () {
+              getGourmet();
+            },
+            child: Text('検索'),
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -83,6 +90,30 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
   }
+}
+
+Future<void> getGourmet() async {
+  Map<String, String> queryParameters = {
+    'key': '2fe55a3b11fdac08',
+    'format': 'json',
+    'lat': '35.697837275',
+    'lng': '139.8117242108',
+    'range': '5',
+    'count': '10',
+  };
+  Uri uri = Uri.https(
+      'webservice.recruit.co.jp', '/hotpepper/gourmet/v1/', queryParameters);
+  final response = await http.get(
+    uri,
+  );
+  print('👑$response');
+  print('👑${response.statusCode}');
+
+  final results = jsonDecode(response.body);
+  print(results['results']['shop'][0]['name']);
+  print(results['results']['shop'][0]['address']);
+  print(results['results']['shop'][0]['station_name']);
+  print(results['results']['shop'][0]['photo']['mobile']['s']);
 }
 
 Future<Position> determinePosition() async {
