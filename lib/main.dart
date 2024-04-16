@@ -35,6 +35,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   Position? _position; // 位置情報を保持する状態変数
+  String isSelectedValue = '1';
 
   @override
   Widget build(BuildContext context) {
@@ -46,9 +47,6 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: <Widget>[
-          const Text(
-            'position:',
-          ),
           // 位置情報を表示する部分
           if (_position != null)
             Text(
@@ -58,35 +56,103 @@ class _MyHomePageState extends State<MyHomePage> {
           // 位置情報が取得されるまでの表示
           if (_position == null)
             // CircularProgressIndicator(), // ローディングインジケーターを表示
-            Text(''),
+            const Text(''),
           ElevatedButton(
             onPressed: () {
-              getGourmet();
+              // ボタンが押されたときに位置情報を取得する
+              determinePosition().then((position) {
+                setState(() {
+                  _position = position; // 取得した位置情報を状態に設定
+                });
+              }).catchError((error) {
+                setState(() {
+                  _position = null; // エラーが発生した場合は状態をクリア
+                });
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Error: $error'), // エラーメッセージを表示
+                  ),
+                );
+              });
             },
-            child: Text('検索'),
+            child: const Text('位置情報取得'),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              const Text('検索範囲'),
+              DropdownButton(
+                items: const [
+                  DropdownMenuItem(
+                    value: '1',
+                    child: Text('300m'),
+                  ),
+                  DropdownMenuItem(
+                    value: '2',
+                    child: Text('500m'),
+                  ),
+                  DropdownMenuItem(
+                    value: '3',
+                    child: Text('1000m'),
+                  ),
+                  DropdownMenuItem(
+                    value: '4',
+                    child: Text('2000m'),
+                  ),
+                  DropdownMenuItem(
+                    value: '5',
+                    child: Text('3000m'),
+                  ),
+                ],
+                value: isSelectedValue,
+                onChanged: (String? value) {
+                  setState(() {
+                    isSelectedValue = value!;
+                  });
+                },
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  getGourmet();
+                  print(isSelectedValue);
+                },
+                child: const Text('検索'),
+              ),
+            ],
+          ),
+          Container(
+            padding: EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              border: Border.all(
+                width: 1,
+                color: Colors.black,
+              ),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Image.network(
+                    'https://imgfp.hotp.jp/IMGH/16/98/P041921698/P041921698_100.jpg'),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                        style: TextStyle(
+                          fontSize: 18,
+                        ),
+                        '店舗名称'),
+                    Text(
+                        style: TextStyle(
+                          fontSize: 16,
+                        ),
+                        'アクセス'),
+                  ],
+                ),
+              ],
+            ),
           ),
         ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // ボタンが押されたときに位置情報を取得する
-          determinePosition().then((position) {
-            setState(() {
-              _position = position; // 取得した位置情報を状態に設定
-            });
-          }).catchError((error) {
-            setState(() {
-              _position = null; // エラーが発生した場合は状態をクリア
-            });
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Error: $error'), // エラーメッセージを表示
-              ),
-            );
-          });
-        },
-        tooltip: 'Get Position',
-        child: Icon(Icons.add),
       ),
     );
   }
@@ -114,6 +180,7 @@ Future<void> getGourmet() async {
   print(results['results']['shop'][0]['address']);
   print(results['results']['shop'][0]['station_name']);
   print(results['results']['shop'][0]['photo']['mobile']['s']);
+  print(results['results']['shop'][0]['mobile_access']);
 }
 
 Future<Position> determinePosition() async {
