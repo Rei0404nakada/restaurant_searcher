@@ -59,6 +59,13 @@ class _MyHomePageState extends State<MyHomePage> {
                 determinePosition().then((position) {
                   setState(() {
                     _position = position; // 取得した位置情報を状態に設定
+                    if (_position != null) {
+                      print(_position!.latitude.toString());
+                      print(_position!.longitude.toString());
+                      latPosition = '35.691837275';
+                      lngPosition = '139.8117242108';
+                      print(latPosition);
+                    }
                   });
                 }).catchError((error) {
                   setState(() {
@@ -70,15 +77,6 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                   );
                 });
-                if (_position != null) {
-                  setState(() {
-                    print(_position!.latitude.toString());
-                    print(_position!.longitude.toString());
-                    latPosition = '35.691837275';
-                    lngPosition = '139.8117242108';
-                    print(latPosition);
-                  });
-                }
               },
               child: const Text('位置情報取得'),
             ),
@@ -201,8 +199,18 @@ class _MyHomePageState extends State<MyHomePage> {
                         ],
                       );
                     } else {
-                      return SizedBox(
-                        height: 50,
+                      return Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Text(
+                            style: TextStyle(
+                              fontSize: 18,
+                            ),
+                            locationChecker() == false
+                                ? '位置情報を取得してください'
+                                : '検索ボタンを押してください',
+                          ),
+                        ],
                       );
                     }
                   }),
