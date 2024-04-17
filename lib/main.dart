@@ -35,8 +35,10 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   Position? _position; // 位置情報を保持する状態変数
+  String latPosition = '';
+  String lngPosition = '';
   String isSelectedValue = '1';
-  late List<List<String>>? restaurantData;
+
   String range = '1';
 
   @override
@@ -51,16 +53,6 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
-            // // 位置情報を表示する部分
-            // if (_position != null)
-            //   Text(
-            //     'Latitude: ${_position!.latitude}, Longitude: ${_position!.longitude}',
-            //     style: Theme.of(context).textTheme.titleLarge,
-            //   ),
-            // // 位置情報が取得されるまでの表示
-            // if (_position == null)
-            //   // CircularProgressIndicator(), // ローディングインジケーターを表示
-            //   const Text(''),
             ElevatedButton(
               onPressed: () {
                 // ボタンが押されたときに位置情報を取得する
@@ -81,12 +73,15 @@ class _MyHomePageState extends State<MyHomePage> {
                 if (_position != null) {
                   print(_position!.latitude.toString());
                   print(_position!.longitude.toString());
+                  latPosition = '35.691837275';
+                  lngPosition = '139.8117242108';
+                  print(latPosition);
                 }
               },
               child: const Text('位置情報取得'),
             ),
             Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: <Widget>[
                 const Text('検索範囲'),
                 DropdownButton(
@@ -122,7 +117,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    getGourmet(range);
+                    getGourmet(range, latPosition, lngPosition);
                     print(isSelectedValue);
                   },
                   child: const Text('検索'),
@@ -139,11 +134,14 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ),
               child: FutureBuilder<List<List<String>>?>(
-                  future: getGourmet(range),
+                  future: getGourmet(range, latPosition, lngPosition),
                   builder: (BuildContext context,
                       AsyncSnapshot<List<List<String>>?> snapshot) {
-                    if (snapshot.hasData) {
+                    if (snapshot.hasData &&
+                        latPosition != '' &&
+                        lngPosition != '') {
                       List<List<String>>? data = snapshot.data;
+                      // print(data);
                       int dataLength = data!.length;
                       return Column(
                         children: <Widget>[
@@ -161,7 +159,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                     MainAxisAlignment.spaceBetween,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: <Widget>[
-                                  Image.network(restaurantData![i][1]),
+                                  Image.network(data![i][1]),
                                   Container(
                                     width: _deviceWidth * 0.66,
                                     child: Column(
@@ -171,15 +169,15 @@ class _MyHomePageState extends State<MyHomePage> {
                                           CrossAxisAlignment.start,
                                       children: <Widget>[
                                         Text(
-                                            style: TextStyle(
+                                            style: const TextStyle(
                                               fontSize: 18,
                                             ),
-                                            restaurantData![i][0]),
+                                            data![i][0]),
                                         Text(
-                                            style: TextStyle(
+                                            style: const TextStyle(
                                               fontSize: 16,
                                             ),
-                                            restaurantData![i][2]),
+                                            data![i][2]),
                                       ],
                                     ),
                                   ),
@@ -202,12 +200,15 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Future<List<List<String>>?> getGourmet(range) async {
+  Future<List<List<String>>?> getGourmet(
+      String range, String lat, String lng) async {
+    late List<List<String>>? restaurantData;
+    int test = 404;
     Map<String, String> queryParameters = {
       'key': '2fe55a3b11fdac08',
       'format': 'json',
-      'lat': '35.697837275',
-      'lng': '139.8117242108',
+      'lat': lat,
+      'lng': lng,
       'range': range,
       'count': '10',
     };
@@ -220,12 +221,10 @@ class _MyHomePageState extends State<MyHomePage> {
     print('👑${response.statusCode}');
 
     final results = jsonDecode(response.body);
-
     print(results['results']['shop'][0]['name']);
-    print(results['results']['shop'][0]['address']);
-    print(results['results']['shop'][0]['station_name']);
-    print(results['results']['shop'][0]['photo']['mobile']['s']);
-    print(results['results']['shop'][0]['mobile_access']);
+    print(lat);
+    print(range);
+
     if (response.statusCode == 200) {
       restaurantData = [
         [
