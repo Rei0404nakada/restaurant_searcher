@@ -40,6 +40,7 @@ class _MyHomePageState extends State<MyHomePage> {
   String isSelectedValue = '1';
   String range = '1';
   Future<List<List<String>>?>? restaurantData;
+  bool searchError = false;
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +63,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     if (_position != null) {
                       print(_position!.latitude.toString());
                       print(_position!.longitude.toString());
-                      latPosition = '35.691837275';
+                      latPosition = '135.691837275';
                       lngPosition = '139.8117242108';
                       print(latPosition);
                     }
@@ -198,12 +199,29 @@ class _MyHomePageState extends State<MyHomePage> {
                           },
                         ],
                       );
+                    } else if (searchError) {
+                      return AlertDialog(
+                        title: Text('エラー'),
+                        content: Text('検索範囲に店が存在していないか、通信エラーが発生しています'),
+                        actions: <Widget>[
+                          TextButton(
+                            child: Text('OK'),
+                            onPressed: () {
+                              setState(() {
+                                searchError = false;
+                                latPosition = '';
+                                lngPosition = '';
+                              });
+                            },
+                          ),
+                        ],
+                      );
                     } else {
                       return Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
                           Text(
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 18,
                             ),
                             locationChecker() == false
@@ -250,11 +268,12 @@ class _MyHomePageState extends State<MyHomePage> {
     print('👑${response.statusCode}');
 
     final results = jsonDecode(response.body);
-    print(results['results']['shop'][0]['name']);
+    print(results);
     print(lat);
     print(range);
 
-    if (response.statusCode == 200) {
+    if (response.statusCode == 200 && results['results']['shop'].length > 0) {
+      searchError = false;
       restaurantData = [
         [
           results['results']['shop'][0]['name'],
@@ -271,6 +290,8 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         );
       }
+    } else {
+      searchError = true;
     }
     return restaurantData;
   }
