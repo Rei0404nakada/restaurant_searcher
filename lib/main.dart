@@ -38,8 +38,8 @@ class _MyHomePageState extends State<MyHomePage> {
   String latPosition = '';
   String lngPosition = '';
   String isSelectedValue = '1';
-
   String range = '1';
+  Future<List<List<String>>?>? restaurantData;
 
   @override
   Widget build(BuildContext context) {
@@ -71,11 +71,13 @@ class _MyHomePageState extends State<MyHomePage> {
                   );
                 });
                 if (_position != null) {
-                  print(_position!.latitude.toString());
-                  print(_position!.longitude.toString());
-                  latPosition = '35.691837275';
-                  lngPosition = '139.8117242108';
-                  print(latPosition);
+                  setState(() {
+                    print(_position!.latitude.toString());
+                    print(_position!.longitude.toString());
+                    latPosition = '35.691837275';
+                    lngPosition = '139.8117242108';
+                    print(latPosition);
+                  });
                 }
               },
               child: const Text('位置情報取得'),
@@ -116,10 +118,21 @@ class _MyHomePageState extends State<MyHomePage> {
                   },
                 ),
                 ElevatedButton(
-                  onPressed: () {
-                    getGourmet(range, latPosition, lngPosition);
-                    print(isSelectedValue);
-                  },
+                  onPressed: locationChecker() == false
+                      ? null
+                      : () {
+                          setState(() {
+                            restaurantData =
+                                getGourmet(range, latPosition, lngPosition);
+                            print(isSelectedValue);
+                          });
+                        },
+                  style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      backgroundColor: Colors.blueAccent,
+                      disabledBackgroundColor:
+                          Colors.blueAccent.withOpacity(0.6),
+                      disabledForegroundColor: Colors.white.withOpacity(0.6)),
                   child: const Text('検索'),
                 ),
               ],
@@ -134,7 +147,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ),
               child: FutureBuilder<List<List<String>>?>(
-                  future: getGourmet(range, latPosition, lngPosition),
+                  future: restaurantData,
                   builder: (BuildContext context,
                       AsyncSnapshot<List<List<String>>?> snapshot) {
                     if (snapshot.hasData &&
@@ -198,6 +211,14 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
     );
+  }
+
+  bool locationChecker() {
+    if (latPosition != '' && lngPosition != '') {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   Future<List<List<String>>?> getGourmet(
