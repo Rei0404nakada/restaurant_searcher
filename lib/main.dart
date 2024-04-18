@@ -63,7 +63,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     if (_position != null) {
                       print(_position!.latitude.toString());
                       print(_position!.longitude.toString());
-                      latPosition = '135.691837275';
+                      latPosition = '35.691837275';
                       lngPosition = '139.8117242108';
                       print(latPosition);
                     }
@@ -137,7 +137,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ],
             ),
             Container(
-              padding: EdgeInsets.all(10),
+              padding: const EdgeInsets.all(10),
               width: _deviceWidth,
               decoration: BoxDecoration(
                 border: Border.all(
@@ -153,10 +153,32 @@ class _MyHomePageState extends State<MyHomePage> {
                         latPosition != '' &&
                         lngPosition != '') {
                       List<List<String>>? data = snapshot.data;
-                      // print(data);
                       int dataLength = data!.length;
                       return Column(
                         children: <Widget>[
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              TextButton(
+                                onPressed: () {},
+                                style: TextButton.styleFrom(
+                                  foregroundColor: Colors.black,
+                                ),
+                                child: Text('＜'),
+                              ),
+                              const Text(
+                                '1',
+                                style: TextStyle(fontSize: 18),
+                              ),
+                              TextButton(
+                                onPressed: () {},
+                                style: TextButton.styleFrom(
+                                  foregroundColor: Colors.black,
+                                ),
+                                child: Text('＞'),
+                              ),
+                            ],
+                          ),
                           for (int i = 0; i < dataLength; i++) ...{
                             Container(
                               width: _deviceWidth,
@@ -171,8 +193,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                     MainAxisAlignment.spaceBetween,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: <Widget>[
-                                  Image.network(data![i][1]),
-                                  Container(
+                                  Image.network(data[i][1]),
+                                  SizedBox(
                                     width: _deviceWidth * 0.66,
                                     child: Column(
                                       mainAxisAlignment:
@@ -184,12 +206,12 @@ class _MyHomePageState extends State<MyHomePage> {
                                             style: const TextStyle(
                                               fontSize: 18,
                                             ),
-                                            data![i][0]),
+                                            data[i][0]),
                                         Text(
                                             style: const TextStyle(
                                               fontSize: 16,
                                             ),
-                                            data![i][2]),
+                                            data[i][2]),
                                       ],
                                     ),
                                   ),
@@ -201,12 +223,12 @@ class _MyHomePageState extends State<MyHomePage> {
                       );
                     } else if (searchError) {
                       return AlertDialog(
-                        title: Text('エラー'),
-                        content: Text('検索範囲に店が存在していないか、通信エラーが発生しています'),
+                        title: const Text('エラー'),
+                        content: const Text('検索範囲に店が存在していないか、通信エラーが発生しています'),
                         actions: <Widget>[
-                          TextButton(
-                            child: Text('OK'),
-                            onPressed: () {
+                          GestureDetector(
+                            child: const Text('OK'),
+                            onTap: () {
                               setState(() {
                                 searchError = false;
                                 latPosition = '';
