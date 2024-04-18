@@ -81,70 +81,74 @@ class _MyHomePageState extends State<MyHomePage> {
               },
               child: const Text('位置情報取得'),
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                const Text('検索範囲'),
-                DropdownButton(
-                  items: const [
-                    DropdownMenuItem(
-                      value: '1',
-                      child: Text('300m'),
-                    ),
-                    DropdownMenuItem(
-                      value: '2',
-                      child: Text('500m'),
-                    ),
-                    DropdownMenuItem(
-                      value: '3',
-                      child: Text('1000m'),
-                    ),
-                    DropdownMenuItem(
-                      value: '4',
-                      child: Text('2000m'),
-                    ),
-                    DropdownMenuItem(
-                      value: '5',
-                      child: Text('3000m'),
-                    ),
-                  ],
-                  value: isSelectedValue,
-                  onChanged: (String? value) {
-                    setState(() {
-                      isSelectedValue = value!;
-                      range = value;
-                    });
-                  },
+            Container(
+              decoration: const BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(
+                    color: Colors.black,
+                    width: 1,
+                  ),
                 ),
-                ElevatedButton(
-                  onPressed: locationChecker() == false
-                      ? null
-                      : () {
-                          setState(() {
-                            restaurantData =
-                                getGourmet(range, latPosition, lngPosition);
-                            print(isSelectedValue);
-                          });
-                        },
-                  style: ElevatedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      backgroundColor: Colors.blueAccent,
-                      disabledBackgroundColor:
-                          Colors.blueAccent.withOpacity(0.6),
-                      disabledForegroundColor: Colors.white.withOpacity(0.6)),
-                  child: const Text('検索'),
-                ),
-              ],
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  const Text('検索範囲'),
+                  DropdownButton(
+                    items: const [
+                      DropdownMenuItem(
+                        value: '1',
+                        child: Text('300m'),
+                      ),
+                      DropdownMenuItem(
+                        value: '2',
+                        child: Text('500m'),
+                      ),
+                      DropdownMenuItem(
+                        value: '3',
+                        child: Text('1000m'),
+                      ),
+                      DropdownMenuItem(
+                        value: '4',
+                        child: Text('2000m'),
+                      ),
+                      DropdownMenuItem(
+                        value: '5',
+                        child: Text('3000m'),
+                      ),
+                    ],
+                    value: isSelectedValue,
+                    onChanged: (String? value) {
+                      setState(() {
+                        isSelectedValue = value!;
+                        range = value;
+                      });
+                    },
+                  ),
+                  ElevatedButton(
+                    onPressed: locationChecker() == false
+                        ? null
+                        : () {
+                            setState(() {
+                              restaurantData =
+                                  getGourmet(range, latPosition, lngPosition);
+                              print(isSelectedValue);
+                            });
+                          },
+                    style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        backgroundColor: Colors.blueAccent,
+                        disabledBackgroundColor:
+                            Colors.blueAccent.withOpacity(0.6),
+                        disabledForegroundColor: Colors.white.withOpacity(0.6)),
+                    child: const Text('検索'),
+                  ),
+                ],
+              ),
             ),
             Container(
               padding: const EdgeInsets.all(10),
               width: _deviceWidth,
-              decoration: BoxDecoration(
-                border: Border.all(
-                  width: 1,
-                  color: Colors.black,
-                ),
-              ),
               child: FutureBuilder<List<List<String>>?>(
                   future: restaurantData,
                   builder: (BuildContext context,
@@ -164,7 +168,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                 style: TextButton.styleFrom(
                                   foregroundColor: Colors.black,
                                 ),
-                                child: Text('＜'),
+                                child: const Text('＜'),
                               ),
                               const Text(
                                 '1',
@@ -175,13 +179,14 @@ class _MyHomePageState extends State<MyHomePage> {
                                 style: TextButton.styleFrom(
                                   foregroundColor: Colors.black,
                                 ),
-                                child: Text('＞'),
+                                child: const Text('＞'),
                               ),
                             ],
                           ),
                           for (int i = 0; i < dataLength; i++) ...{
                             Container(
                               width: _deviceWidth,
+                              height: _deviceWidth * 0.33,
                               decoration: BoxDecoration(
                                 border: Border.all(
                                   width: 1,
@@ -209,9 +214,14 @@ class _MyHomePageState extends State<MyHomePage> {
                                             data[i][0]),
                                         Text(
                                             style: const TextStyle(
-                                              fontSize: 16,
+                                              fontSize: 15,
                                             ),
                                             data[i][2]),
+                                        Text(
+                                            style: const TextStyle(
+                                              fontSize: 15,
+                                            ),
+                                            data[i][3]),
                                       ],
                                     ),
                                   ),
@@ -293,6 +303,7 @@ class _MyHomePageState extends State<MyHomePage> {
     print(results);
     print(lat);
     print(range);
+    print(results['results']['shop'][0]['budget']['name']);
 
     if (response.statusCode == 200 && results['results']['shop'].length > 0) {
       searchError = false;
@@ -300,7 +311,8 @@ class _MyHomePageState extends State<MyHomePage> {
         [
           results['results']['shop'][0]['name'],
           results['results']['shop'][0]['photo']['mobile']['s'],
-          results['results']['shop'][0]['mobile_access']
+          results['results']['shop'][0]['mobile_access'],
+          results['results']['shop'][0]['budget']['name']
         ],
       ];
       for (int i = 1; i < results['results']['shop'].length; i++) {
@@ -308,7 +320,8 @@ class _MyHomePageState extends State<MyHomePage> {
           [
             results['results']['shop'][i]['name'],
             results['results']['shop'][i]['photo']['mobile']['s'],
-            results['results']['shop'][i]['mobile_access']
+            results['results']['shop'][i]['mobile_access'],
+            results['results']['shop'][i]['budget']['name']
           ],
         );
       }
